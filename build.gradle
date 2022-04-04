@@ -1,0 +1,59 @@
+plugins {
+	id 'org.springframework.boot' version '2.6.5'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'groovy'
+	id 'jacoco'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.projectlombok:lombok:1.18.22'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+	compileOnly 'org.projectlombok:lombok:1.18.22'
+	annotationProcessor 'org.projectlombok:lombok:1.18.22'
+
+	testCompileOnly 'org.projectlombok:lombok:1.18.22'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.codehaus.groovy:groovy-all:3.0.10'
+	testImplementation "org.spockframework:spock-spring"
+	testImplementation "org.spockframework:spock-core"
+	testImplementation platform("org.spockframework:spock-bom:2.1-groovy-3.0")
+
+}
+
+jacoco {
+	toolVersion = "0.8.7"
+	reportsDirectory = file("$buildDir/jacoco")
+}
+test {
+	finalizedBy jacocoTestReport
+}
+jacocoTestReport {
+	dependsOn test
+
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+					"**/repository/*",
+					"**/model/*",
+					"**/exception/*Error.*",
+					"**/*Application.*"
+			])
+		}))
+	}
+}
+
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
